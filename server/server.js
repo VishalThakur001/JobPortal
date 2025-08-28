@@ -11,7 +11,6 @@ import jobRoutes from './routes/jobRoutes.js'
 import userRoutes from './routes/userRoutes.js'
 import { clerkMiddleware } from '@clerk/express'
 
-
 // Initialize Express
 const app = express()
 
@@ -19,8 +18,24 @@ const app = express()
 connectDB()
 await connectCloudinary()
 
+const allowedOrigins = [
+  process.env.CLIENT_URL,
+  process.env.DEV_URL
+]
+
+app.use(cors({
+  origin: function (origin, callback) {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true)
+    } else {
+      callback(new Error("Not allowed by CORS"))
+    }
+  },
+  methods: ["GET", "POST", "PUT", "DELETE"],
+  credentials: true,
+}))
+
 // Middlewares
-app.use(cors())
 app.use(express.json())
 app.use(clerkMiddleware())
 
